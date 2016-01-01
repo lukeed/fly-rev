@@ -47,6 +47,7 @@
   "devDependencies": {
     "eslint": "^1.10.3",
     "eslint-config-xo": "^0.9.1",
+    "eslint-plugin-babel": "^3.0.0",
     "tap-spec": "^4.1.1",
     "tape": "^4.2.2"
   },
