@@ -39,6 +39,7 @@
     "url": "https://lukeed.com"
   },
   "dependencies": {
+    "modify-filename": "^1.1.0",
     "object-assign": "^4.0.1",
     "rev-hash": "^1.0.0",
     "rev-path": "^1.0.0"
