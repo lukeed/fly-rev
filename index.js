@@ -14,7 +14,7 @@ export default function () {
   this.rev = function (options) {
     // overwrite default opt values
     const opts = assign({
-      base: '',
+      base: '.',
       path: 'rev-manifest.json'
     }, options)
 
