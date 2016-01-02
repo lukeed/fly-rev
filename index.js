@@ -27,7 +27,8 @@ export default function () {
       manifest[name] = revved
     })).then(() => {
       manifest = sortKeys(manifest)
-      console.log( manifest )
+      const data = JSON.stringify(manifest, false, '  ')
+      return write(`${opts.base}/${opts.path}`, data)
     })
 
     return this // chain
