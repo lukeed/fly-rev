@@ -13,19 +13,29 @@
 [![][mit-badge]][mit]
 
 ## Usage
-> Check out the [documentation](PLUGIN_DOCUMENTATION) to see the available options.
 
 ### Install
-
 ```a
 npm install -D fly-rev
 ```
 
 ### Example
 
+`fly-rev` must be contained within its own task. This is because it does not allow method chaining, as it handles its own endpoint.
+
+It is also suggested that this `rev` task be the last step in your build process.
+
 ```js
-export default function* () {
-  yield ...
+export default function* {
+  // ...
+  this.start('rev') // call the rev task
+}
+
+export function* rev() {
+  const src = ['scripts', 'styles', 'images'].map(dir => {
+    return `dist/${dir}/**/*`
+  })
+  return this.source(src).rev({base: 'dist'});
 }
 ```
 
