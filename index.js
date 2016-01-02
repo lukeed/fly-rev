@@ -1,18 +1,16 @@
-const read = require("fs").readFileSync
-const assign = require("object-assign")
-const revHash = require("rev-hash")
-const revPath = require("rev-path")
-const modName = require("modify-filename")
-// const sortKeys = require("sort-keys")
+const read = require('fs').readFileSync
+const assign = require('object-assign')
+const revHash = require('rev-hash')
+const revPath = require('rev-path')
+const modName = require('modify-filename')
+// const sortKeys = require('sort-keys')
 
-function generateName (filename) {
-  const buffer = read(filename)
-  const hash = revHash(buffer)
-  console.log( "inside gen", typeof file )
-  return file
+function alterFile (filename, hash) {
+  console.log( filename, hash )
+  // return file
   // return modName(file, (name, extn) => {
-  //   console.log( "inside modName:", name, extn )
-  //   const idx = name.indexOf(".")
+  //   console.log( 'inside modName:', name, extn )
+  //   const idx = name.indexOf('.')
 
   //   name = idx === -1 ? revPath(name, hash) : revPath(name.slice(0, idx), hash) + name.slice(idx)
 
@@ -21,20 +19,27 @@ function generateName (filename) {
 }
 
 export default function () {
+  console.log( 'inside rev' )
   let manifest = {}
   this.rev = function (options) {
     this.unwrap(files => files.map(name => {
+      console.log( 'I AM HERE' )
       const buff = read(name)
       const hash = revHash(buff)
-      const idx = name.indexOf(".")
-      const extn = name.slice(idx)
 
-      let revved = (idx === -1) ? name : name.slice(0, idx)
-      revved = revPath(revved, hash) + (idx === -1 ? '' : extn)
+      let test = alterFile(name, hash)
 
-      manifest[name] = revved
+      // console.log( name, hash )
+      // console.log( test )
+      // const idx = name.indexOf('.')
+      // const extn = name.slice(idx)
+
+      // let revved = (idx === -1) ? name : name.slice(0, idx)
+      // revved = revPath(revved, hash) + (idx === -1 ? '' : extn)
+
+      // manifest[name] = revved
     })).then(() => {
-      console.log( manifest );
+      // console.log( manifest )
     })
 
     // console.log( 'OUTISDE', manifest );
