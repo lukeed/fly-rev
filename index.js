@@ -6,6 +6,7 @@ const sortKeys = require('sort-keys')
 // alias
 const read = fs.readFileSync
 const write = fs.writeFileSync
+const rename = fs.renameSync
 
 export default function () {
   let manifest = {} // reset on call
@@ -21,9 +22,14 @@ export default function () {
     this.unwrap(files => files.map(name => {
       let revved = hashify(name)
 
+      // rename the original file
+      rename(name, revved)
+
+      // strip the base from path
       name = relPath(opts.base, name)
       revved = relPath(opts.base, revved)
 
+      // add pairing to manifest
       manifest[name] = revved
     })).then(() => {
       manifest = sortKeys(manifest)
@@ -31,7 +37,7 @@ export default function () {
       return write(`${opts.base}/${opts.path}`, data)
     })
 
-    return this // chain
+    // return this // chain
   }
 }
 
