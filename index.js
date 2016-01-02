@@ -27,7 +27,7 @@ export default function () {
     const opts = assign({
       path: 'rev-manifest.json',
       merge: false,
-      base: '.'
+      base: ''
     }, options)
 
     // handle all this.source(...) files
