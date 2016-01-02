@@ -1,8 +1,11 @@
-const read = require('fs').readFileSync
+const fs = require('fs')
 const assign = require('object-assign')
 const revHash = require('rev-hash')
 const revPath = require('rev-path')
 const sortKeys = require('sort-keys')
+// alias
+const read = fs.readFileSync
+const write = fs.writeFileSync
 
 export default function () {
   let manifest = {} // reset on call
