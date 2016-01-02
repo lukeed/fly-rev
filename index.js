@@ -1,8 +1,8 @@
 const fs = require('fs')
-const assign = require('object-assign')
 const revHash = require('rev-hash')
 const revPath = require('rev-path')
 const sortKeys = require('sort-keys')
+const assign = require('object-assign')
 // alias
 const read = fs.readFileSync
 const write = fs.writeFileSync
@@ -15,6 +15,7 @@ export default function () {
     // overwrite default opt values
     const opts = assign({
       base: '.',
+      replace: false,
       path: 'rev-manifest.json'
     }, options)
 
@@ -34,10 +35,13 @@ export default function () {
     })).then(() => {
       manifest = sortKeys(manifest)
       const data = JSON.stringify(manifest, false, '  ')
-      return write(`${opts.base}/${opts.path}`, data)
-    })
 
-    return this // chain
+      write(`${opts.base}/${opts.path}`, data)
+
+      if (opts.replace) {
+        return replacePaths(opts.base, opts.path, manifest)
+      }
+    })
   }
 }
 
@@ -65,4 +69,45 @@ function relPath(base, path) {
   }
 
   return newPath;
+}
+
+function getFiles(base, manifest) {
+  let output = []
+
+  function parser(dir) {
+    const items = fs.readdirSync(dir)
+
+    items.forEach(item => {
+      const fullpath = `${dir}/${item}`
+      const stats = fs.statSync(fullpath)
+
+      if (stats.isDirectory()) {
+        return parser(fullpath)
+      } else if (stats.isFile() && item !== manifest) {
+        output.push(fullpath)
+      }
+    })
+  }
+
+  parser(base)
+
+  return output
+}
+
+function replacePaths(base, manifest, content) {
+  const files = getFiles(base, manifest)
+  const keys = Object.keys(content)
+
+  // Escape safe characters
+  for (let key of keys) {
+    key = key.replace(/([[^$.|?*+(){}\\])/g, '\\$1');
+  }
+
+  const rgxp = new RegExp(keys.join('|'), 'g')
+
+  files.forEach(file => {
+    fs.readFile(file, 'utf8', (err, data) => {
+      fs.writeFile(file, data.replace(rgxp, key => content[key]))
+    })
+  })
 }
