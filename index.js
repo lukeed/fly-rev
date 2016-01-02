@@ -2,22 +2,7 @@ const read = require('fs').readFileSync
 const assign = require('object-assign')
 const revHash = require('rev-hash')
 const revPath = require('rev-path')
-// const modName = require('modify-filename')
-// const sortKeys = require('sort-keys')
-
-function relPath(base, path) {
-  if (path.indexOf(base) !== 0) {
-    return path.replace(/\\/g, '/')
-  }
-
-  const newPath = path.substr(base.length).replace(/\\/g, '/')
-
-  if (newPath[0] === '/') {
-    return newPath.substr(1)
-  }
-
-  return newPath;
-}
+const sortKeys = require('sort-keys')
 
 export default function () {
   let manifest = {} // reset on call
@@ -25,9 +10,8 @@ export default function () {
   this.rev = function (options) {
     // overwrite default opt values
     const opts = assign({
-      path: 'rev-manifest.json',
-      merge: false,
-      base: ''
+      base: '',
+      path: 'rev-manifest.json'
     }, options)
 
     // handle all this.source(...) files
@@ -39,7 +23,8 @@ export default function () {
 
       manifest[name] = revved
     })).then(() => {
-      console.log( 'this manifest', manifest, opts )
+      manifest = sortKeys(manifest)
+      console.log( manifest )
     })
 
     return this // chain
@@ -56,4 +41,18 @@ function hashify (name) {
   const revved = (idx === -1) ? name : name.slice(0, idx)
 
   return revPath(revved, hash) + (idx === -1 ? '' : extn)
+}
+
+function relPath(base, path) {
+  if (path.indexOf(base) !== 0) {
+    return path.replace(/\\/g, '/')
+  }
+
+  const newPath = path.substr(base.length).replace(/\\/g, '/')
+
+  if (newPath[0] === '/') {
+    return newPath.substr(1)
+  }
+
+  return newPath;
 }
