@@ -19,6 +19,22 @@
 npm install -D fly-rev
 ```
 
+### Options
+
+#### base
+Type: `string`
+
+Default: `.` (project root)
+
+The base directory where your assets reside. This is also where your `rev-manifest.json` file will be placed.
+
+#### path
+Type: `string`
+
+Default: `rev-manifest.json`
+
+The filename of your manifest file.
+
 ### Example
 
 `fly-rev` must be contained within its own task. This is because it does not allow method chaining, as it handles its own endpoint.
