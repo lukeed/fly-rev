@@ -35,6 +35,13 @@ Default: `rev-manifest.json`
 
 The filename of your manifest file.
 
+#### replace
+Type: `boolean`
+
+Default: false
+
+If true, will browse all files within `options.base` and rewrite occurrences of filenames that were renamed.
+
 ### Example
 
 `fly-rev` must be contained within its own task. This is because it does not allow method chaining, as it handles its own endpoint.
@@ -51,7 +58,10 @@ export function* rev() {
   const src = ['scripts', 'styles', 'images'].map(dir => {
     return `dist/${dir}/**/*`
   })
-  return this.source(src).rev({base: 'dist'});
+  return this.source(src).rev({
+    base: 'dist',
+    replace: true
+  })
 }
 ```
 
