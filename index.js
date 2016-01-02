@@ -2,7 +2,6 @@ const read = require('fs').readFileSync
 const assign = require('object-assign')
 const revHash = require('rev-hash')
 const revPath = require('rev-path')
-const modName = require('modify-filename')
 // const sortKeys = require('sort-keys')
 
 function alterFile (filename, hash) {
