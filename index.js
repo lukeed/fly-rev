@@ -4,50 +4,42 @@ const revHash = require('rev-hash')
 const revPath = require('rev-path')
 // const sortKeys = require('sort-keys')
 
-function alterFile (filename, hash) {
-  console.log( filename, hash )
-  // return file
-  // return modName(file, (name, extn) => {
-  //   console.log( 'inside modName:', name, extn )
-  //   const idx = name.indexOf('.')
-
-  //   name = idx === -1 ? revPath(name, hash) : revPath(name.slice(0, idx), hash) + name.slice(idx)
-
-  //   return name + extn
-  // })
-}
-
 export default function () {
-  console.log( 'inside rev' )
-  let manifest = {}
+  let manifest = {} // reset on call
+
   this.rev = function (options) {
+    // overwrite default opt values
+    const opts = assign({
+      path: 'rev-manifest.json',
+      merge: false,
+      base: '.'
+    }, options)
+
+    // handle all this.source(...) files
     this.unwrap(files => files.map(name => {
-      console.log( 'I AM HERE' )
-      const buff = read(name)
-      const hash = revHash(buff)
+      let revved = hashify(name)
 
-      let test = alterFile(name, hash)
+      console.log( revved )
 
-      // console.log( name, hash )
-      // console.log( test )
-      // const idx = name.indexOf('.')
-      // const extn = name.slice(idx)
-
-      // let revved = (idx === -1) ? name : name.slice(0, idx)
-      // revved = revPath(revved, hash) + (idx === -1 ? '' : extn)
-
-      // manifest[name] = revved
+      manifest[name] = revved
     })).then(() => {
-      // console.log( manifest )
+      console.log( 'this manifest', manifest, opts )
     })
 
-    // console.log( 'OUTISDE', manifest );
-
-      // console.log( filename, idx )
-      // console.log( filename )
-      // console.log( hash, file )
-    return this
+    return this // chain
   }
+}
+
+function hashify (name) {
+  const buff = read(name)
+  const hash = revHash(buff)
+
+  const idx = name.indexOf('.')
+  const extn = name.slice(idx)
+
+  const revved = (idx === -1) ? name : name.slice(0, idx)
+
+  return revPath(revved, hash) + (idx === -1 ? '' : extn)
 }
 
 function manifest(pth, options) {
