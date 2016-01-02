@@ -37,7 +37,7 @@ export default function () {
       return write(`${opts.base}/${opts.path}`, data)
     })
 
-    // return this // chain
+    return this // chain
   }
 }
 
