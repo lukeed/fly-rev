@@ -2,7 +2,22 @@ const read = require('fs').readFileSync
 const assign = require('object-assign')
 const revHash = require('rev-hash')
 const revPath = require('rev-path')
+// const modName = require('modify-filename')
 // const sortKeys = require('sort-keys')
+
+function relPath(base, path) {
+  if (path.indexOf(base) !== 0) {
+    return path.replace(/\\/g, '/')
+  }
+
+  const newPath = path.substr(base.length).replace(/\\/g, '/')
+
+  if (newPath[0] === '/') {
+    return newPath.substr(1)
+  }
+
+  return newPath;
+}
 
 export default function () {
   let manifest = {} // reset on call
@@ -19,7 +34,8 @@ export default function () {
     this.unwrap(files => files.map(name => {
       let revved = hashify(name)
 
-      console.log( revved )
+      name = relPath(opts.base, name)
+      revved = relPath(opts.base, revved)
 
       manifest[name] = revved
     })).then(() => {
@@ -40,20 +56,4 @@ function hashify (name) {
   const revved = (idx === -1) ? name : name.slice(0, idx)
 
   return revPath(revved, hash) + (idx === -1 ? '' : extn)
-}
-
-function manifest(pth, options) {
-  if (typeof pth === 'string') {
-    pth = {path: pth};
-  }
-
-  const opts = assign({
-    path: 'rev-manifest.json',
-    merge: false
-  }, options)
-
-  let firstFileBase = null;
-  let manifest = {};
-
-  console.log( 'inside manifest', opts )
 }
