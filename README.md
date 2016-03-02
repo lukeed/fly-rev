@@ -4,12 +4,16 @@
   </a>
 </div>
 
-> Revision asset files by appending a unique hash to filenames. May also rewrite occurrences of filenames that were renamed.
+>Append a unique hash to filenames: `example.css` → `example-a6fhd136asf.css`
+
+>May also rewrite occurrences of the filenames that were renamed.
 
 [![][fly-badge]][fly]
 [![npm package][npm-ver-link]][releases]
 [![][dl-badge]][npm-pkg-link]
 [![][travis-badge]][travis-link]
+
+Front-end cache-busting / versioning.
 
 ## Usage
 
