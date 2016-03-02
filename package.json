@@ -27,17 +27,13 @@
     "assets"
   ],
   "scripts": {
-    "lint": "eslint *.js",
-    "setup": "npm i && npm test",
-    "spec": "npm run test | tspec",
-    "test": "npm run lint && npm run tape",
+    "test": "npm run tape",
     "build": "echo No build task specified.",
-    "deploy": "npm run test && git push origin master && npm publish",
     "tape": "node --harmony --harmony_arrow_functions ./node_modules/tape/bin/tape test/*.js"
   },
   "author": {
-    "name": "lukee",
-    "email": "luke.edwards05@gmail.com",
+    "name": "Luke Edwards",
+    "email": "luke@lukeed.com",
     "url": "https://lukeed.com"
   },
   "dependencies": {
@@ -46,9 +42,6 @@
     "rev-path": "^1.0.0"
   },
   "devDependencies": {
-    "eslint": "^1.10.3",
-    "eslint-config-xo": "^0.9.1",
-    "eslint-plugin-babel": "^3.0.0",
     "tap-spec": "^4.1.1",
     "tape": "^4.2.2"
   },
