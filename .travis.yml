@@ -1,7 +1,16 @@
 language: node_js
 node_js:
-  - "0.11"
-  - "0.12"
-  - "iojs"
+  - '0.12'
+  - 'iojs'
+  - '4'
+  - 'stable'
 
-script: "npm run test"
+git:
+  depth: 1
+
+branches:
+  only:
+    - master
+    - develop
+
+script: 'npm run test'
