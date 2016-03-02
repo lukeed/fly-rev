@@ -1,113 +1,114 @@
-const fs = require('fs')
-const revHash = require('rev-hash')
-const revPath = require('rev-path')
-const sortKeys = require('sort-keys')
-const assign = require('object-assign')
-// alias
-const read = fs.readFileSync
-const write = fs.writeFileSync
-const rename = fs.renameSync
+var fs = require('fs');
+var revHash = require('rev-hash');
+var revPath = require('rev-path');
+var sortKeys = require('sort-keys');
+var assign = require('object-assign');
 
-export default function () {
-  let manifest = {} // reset on call
+module.exports = function () {
+	var manifest = {}; // reset on call
 
-  this.rev = function (options) {
-    // overwrite default opt values
-    const opts = assign({
-      base: '.',
-      replace: false,
-      path: 'rev-manifest.json'
-    }, options)
+	this.rev = function (options) {
+		// overwrite default opt values
+		options = assign({
+			base: '.',
+			replace: false,
+			path: 'rev-manifest.json'
+		}, options);
 
-    // handle all this.source(...) files
-    this.unwrap(files => files.map(name => {
-      let revved = hashify(name)
+		// handle all this.source(...) files
+		this.unwrap(function (files) {
+			return files.map(function (name) {
+				var revved = hashify(name);
 
-      // rename the original file
-      rename(name, revved)
+				// rename the original file
+				fs.renameSync(name, revved);
 
-      // strip the base from path
-      name = relPath(opts.base, name)
-      revved = relPath(opts.base, revved)
+				// strip the base from path
+				name = relPath(options.base, name);
+				revved = relPath(options.base, revved);
 
-      // add pairing to manifest
-      manifest[name] = revved
-    })).then(() => {
-      manifest = sortKeys(manifest)
-      const data = JSON.stringify(manifest, false, '  ')
+				// add pairing to manifest
+				manifest[name] = revved;
+			});
+		}).then(function () {
+			manifest = sortKeys(manifest);
 
-      write(`${opts.base}/${opts.path}`, data)
+			var data = JSON.stringify(manifest, false, '  ');
 
-      if (opts.replace) {
-        return replacePaths(opts.base, opts.path, manifest)
-      }
-    })
-  }
-}
+			fs.writeFileSync(options.base + '/' + options.path, data);
 
-function hashify (name) {
-  const buff = read(name)
-  const hash = revHash(buff)
+			if (options.replace) {
+				return replacePaths(options.base, options.path, manifest);
+			}
+		});
+	};
+};
 
-  const idx = name.indexOf('.')
-  const extn = name.slice(idx)
+function hashify(name) {
+	var buff = fs.readFileSync(name);
+	var hash = revHash(buff);
 
-  const revved = (idx === -1) ? name : name.slice(0, idx)
+	var idx = name.indexOf('.');
+	var extn = name.slice(idx);
 
-  return revPath(revved, hash) + (idx === -1 ? '' : extn)
+	var revved = (idx === -1) ? name : name.slice(0, idx);
+
+	return revPath(revved, hash) + (idx === -1 ? '' : extn);
 }
 
 function relPath(base, path) {
-  if (path.indexOf(base) !== 0) {
-    return path.replace(/\\/g, '/')
-  }
+	if (path.indexOf(base) !== 0) {
+		return path.replace(/\\/g, '/');
+	}
 
-  const newPath = path.substr(base.length).replace(/\\/g, '/')
+	var newPath = path.substr(base.length).replace(/\\/g, '/');
 
-  if (newPath[0] === '/') {
-    return newPath.substr(1)
-  }
+	if (newPath[0] === '/') {
+		return newPath.substr(1);
+	}
 
-  return newPath;
+	return newPath;
 }
 
 function getFiles(base, manifest) {
-  let output = []
+	var output = [];
 
-  function parser(dir) {
-    const items = fs.readdirSync(dir)
+	function parser(dir) {
+		var items = fs.readdirSync(dir);
 
-    items.forEach(item => {
-      const fullpath = `${dir}/${item}`
-      const stats = fs.statSync(fullpath)
+		items.forEach(item => {
+			var fullpath = `${dir}/${item}`;
+			var stats = fs.statSync(fullpath);
 
-      if (stats.isDirectory()) {
-        return parser(fullpath)
-      } else if (stats.isFile() && item !== manifest) {
-        output.push(fullpath)
-      }
-    })
-  }
+			if (stats.isDirectory()) {
+				return parser(fullpath);
+			} else if (stats.isFile() && item !== manifest) {
+				output.push(fullpath);
+			}
+		});
+	}
 
-  parser(base)
+	parser(base);
 
-  return output
+	return output;
 }
 
 function replacePaths(base, manifest, content) {
-  const files = getFiles(base, manifest)
-  const keys = Object.keys(content)
+	var files = getFiles(base, manifest);
+	var keys = Object.keys(content);
 
-  // Escape safe characters
-  for (let key of keys) {
-    key = key.replace(/([[^$.|?*+(){}\\])/g, '\\$1');
-  }
+	// Escape safe characters
+	for (var key of keys) {
+		key = key.replace(/([[^$.|?*+(){}\\])/g, '\\$1');
+	}
 
-  const rgxp = new RegExp(keys.join('|'), 'g')
+	var rgxp = new RegExp(keys.join('|'), 'g');
 
-  files.forEach(file => {
-    fs.readFile(file, 'utf8', (err, data) => {
-      fs.writeFile(file, data.replace(rgxp, key => content[key]))
-    })
-  })
+	files.forEach(function * (file) {
+		var data = fs.readFileSync(file, 'utf8').replace(rgxp, function (key) {
+			return content[key];
+		});
+
+		fs.writeFile(file, data);
+	});
 }
