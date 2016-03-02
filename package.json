@@ -29,7 +29,7 @@
   "scripts": {
     "test": "npm run tape",
     "build": "echo No build task specified.",
-    "tape": "node --harmony --harmony_arrow_functions ./node_modules/tape/bin/tape test/*.js"
+    "tape": "xo"
   },
   "author": {
     "name": "Luke Edwards",
