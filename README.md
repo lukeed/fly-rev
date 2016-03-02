@@ -4,7 +4,7 @@
   </a>
 </div>
 
-> [Rev](https://github.com/lukeed/fly-rev) plugin for _[Fly][fly]_.
+> Revision asset files by appending a unique hash to filenames. May also rewrite occurrences of filenames that were renamed.
 
 [![][fly-badge]][fly]
 [![npm package][npm-ver-link]][releases]
