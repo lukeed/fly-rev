@@ -27,9 +27,8 @@
     "assets"
   ],
   "scripts": {
-    "test": "npm run tape",
     "build": "echo No build task specified.",
-    "tape": "xo"
+    "test": "xo"
   },
   "author": {
     "name": "Luke Edwards",
