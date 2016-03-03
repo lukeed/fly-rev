@@ -3,6 +3,7 @@ var revHash = require('rev-hash');
 var revPath = require('rev-path');
 var sortKeys = require('sort-keys');
 var assign = require('object-assign');
+var extname = require('path').extname;
 
 module.exports = function () {
 	var manifest = {}; // reset on call
@@ -15,9 +16,9 @@ module.exports = function () {
 			path: 'rev-manifest.json'
 		}, options);
 
-		// handle all this.source(...) files
-		this.unwrap(function (files) {
-			return files.map(function (name) {
+		return this.unwrap(function (files) {
+			// handle all this.source(...) files
+			files.map(function (name) {
 				var revved = hashify(name);
 
 				// rename the original file
@@ -30,7 +31,7 @@ module.exports = function () {
 				// add pairing to manifest
 				manifest[name] = revved;
 			});
-		}).then(function () {
+
 			manifest = sortKeys(manifest);
 
 			var data = JSON.stringify(manifest, false, '  ');
@@ -38,7 +39,7 @@ module.exports = function () {
 			fs.writeFileSync(options.base + '/' + options.path, data);
 
 			if (options.replace) {
-				return replacePaths(options.base, options.path, manifest);
+				replacePaths(options.base, options.path, manifest);
 			}
 		});
 	};
@@ -76,8 +77,8 @@ function getFiles(base, manifest) {
 	function parser(dir) {
 		var items = fs.readdirSync(dir);
 
-		items.forEach(item => {
-			var fullpath = `${dir}/${item}`;
+		items.forEach(function (item) {
+			var fullpath = dir + '/' + item;
 			var stats = fs.statSync(fullpath);
 
 			if (stats.isDirectory()) {
@@ -103,12 +104,15 @@ function replacePaths(base, manifest, content) {
 	}
 
 	var rgxp = new RegExp(keys.join('|'), 'g');
+	var ignore = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
 
-	files.forEach(function * (file) {
-		var data = fs.readFileSync(file, 'utf8').replace(rgxp, function (key) {
-			return content[key];
-		});
+	files.forEach(function (file) {
+		if (ignore.indexOf(extname(file)) === -1) {
+			var data = fs.readFileSync(file).toString().replace(rgxp, function (key) {
+				return content[key];
+			});
 
-		fs.writeFile(file, data);
+			fs.writeFileSync(file, data);
+		}
 	});
 }
