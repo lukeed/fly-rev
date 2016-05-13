@@ -1,76 +1,57 @@
-var fs = require('fs');
-var extname = require('path').extname;
+var path = require('path');
 var revHash = require('rev-hash');
-var revPath = require('rev-path');
 var sortKeys = require('sort-keys');
 var assign = require('object-assign');
+var write = require('safe-write-file');
+
+var defaults = {
+	base: '',
+	replace: false,
+	filename: 'rev-manifest.json'
+};
 
 module.exports = function () {
 	var manifest = {}; // reset on call
 
-	this.rev = function (options) {
+	this.filter('rev', function (data, opts) {
 		// overwrite default opt values
-		options = assign({
-			base: '.',
-			replace: false,
-			path: 'rev-manifest.json'
-		}, options);
+		opts = assign({}, defaults, opts);
 
-		return this.unwrap(function (files) {
-			// handle all this.source(...) files
-			files.forEach(function (name) {
-				var revved = hashify(name);
+		var hash = revHash(data);
+		var prev = opts.file.name;
+		var next = [prev, hash].join('-');
 
-				// rename the original file
-				fs.renameSync(name, revved);
+		// rename the original file
+		opts.file.name = next;
+		opts.file.base = next.concat(opts.file.ext);
 
-				// strip the base from path
-				name = relPath(options.base, name);
-				revved = relPath(options.base, revved);
+		// strip the `base` from the `dir` path
+		if (opts.base.length) {
+			var rgx = new RegExp(opts.base, 'g');
+			var dir = path.normalize(opts.file.dir.replace(rgx, path.sep));
+			opts.file.dir = dir.charAt(0) === path.sep ? dir.substr(1) : dir;
+		}
 
-				// add pairing to manifest
-				manifest[name] = revved;
-			});
+		// add pairing to manifest
+		prev = path.format(opts.file);
+		next = path.format(opts.file);
+		manifest[prev] = next;
+		// alphabetically sort
+		manifest = sortKeys(manifest);
 
-			manifest = sortKeys(manifest);
+		// write to the manifest
+		var dest = path.join(this.root, opts.base, opts.filename);
+		write(dest, JSON.stringify(manifest, false, '  '));
 
-			var data = JSON.stringify(manifest, false, '  ');
+		// if (options.replace) {
+		// 			replacePaths(options.base, options.path, manifest);
+		// 		}
 
-			fs.writeFileSync(options.base + '/' + options.path, data);
-
-			if (options.replace) {
-				replacePaths(options.base, options.path, manifest);
-			}
-		});
-	};
+		return data;
+	});
 };
 
-function hashify(name) {
-	var buff = fs.readFileSync(name);
-	var hash = revHash(buff);
-
-	var idx = name.indexOf('.');
-	var extn = name.slice(idx);
-
-	var revved = (idx === -1) ? name : name.slice(0, idx);
-
-	return revPath(revved, hash) + (idx === -1 ? '' : extn);
-}
-
-function relPath(base, path) {
-	if (path.indexOf(base) !== 0) {
-		return path.replace(/\\/g, '/');
-	}
-
-	var newPath = path.substr(base.length).replace(/\\/g, '/');
-
-	if (newPath[0] === '/') {
-		return newPath.substr(1);
-	}
-
-	return newPath;
-}
-
+/*
 function getFiles(base, manifest) {
 	var output = [];
 
@@ -116,3 +97,4 @@ function replacePaths(base, manifest, content) {
 		}
 	});
 }
+*/
