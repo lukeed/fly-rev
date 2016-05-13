@@ -13,56 +13,106 @@
 [![][dl-badge]][npm-pkg-link]
 [![][travis-badge]][travis-link]
 
-Front-end cache-busting / versioning.
+Version / hashify asset files for cache-busting.
 
-## Usage
+Optionally create a `rev
 
-### Install
+## Install
 ```a
 npm install fly-rev --save-dev
 ```
 
-### Options
+## Usage
 
-#### base
-Type: `string`
+The `rev()` task is the core method; thus is **required** for anything to occur.
 
-Default: `.` (project root)
+Both `revManifest()` and `revReplace()` are optional, purely elective, plugins.
 
-The directory where your `rev-manifest.json` file will be placed. This should also be where your assets are.
-
-#### filename
-Type: `string`
-
-Default: `rev-manifest.json`
-
-The filename of your manifest file.
-
-#### replace
-Type: `boolean`
-
-Default: false
-
-If true, will browse all files within `options.base` and rewrite occurrences of filenames that were renamed.
-
-### Example
-
-`fly-rev` must be contained within its own task. This is because it does not allow method chaining, as it handles its own endpoint.
-
-It is also suggested that this `rev` task be the last step in your build process.
-
-```js
-export default function* {
-  // ...
-  this.start('rev') // call the rev task
-}
-
-export function* rev() {
-  return this.source('dist/{scripts,styles}/**/*')
-    .rev({base: 'dist'})
+```javascript
+export default function * () {
+  yield this.source('app/**/*')
+    .rev({
+      strip: 'app',
+      ignores: ['.html', '.jpg', '.png']
+     })
+    .revManifest({
+      dirname: 'dist',
+      filename: 'manifest-json'
+    })
+    .revReplace({
+      dirname: 'dist',
+      ignores: ['.php']
+    })
     .target('dist');
 }
 ```
+
+## API
+
+### rev()
+
+Rename files by appending a unique hash, based on file contents.
+
+#### strip
+
+Type: `string` <br>
+Default: `''`
+
+A string to remove from the asset paths; usually the source directory name.
+
+Example: 
+
+```javascript
+yield this.source('app/**/*').rev()
+//=> produces "app/scripts/"
+yield this.source('app/**/*').rev({strip: 'app'})
+//=> produces "scripts/"
+```
+
+#### ignores
+
+Type: `array` <br>
+Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
+
+A list of file extensions to NOT rename.
+
+### revManifest()
+
+Create a manifest that maps old filenames to newly versioned filenames.
+
+#### filename
+
+Type: `string` <br>
+Default: `'rev-manifest.json'`
+
+The filename of the manifest to be created.
+
+#### dirname
+
+Type: `string` <br>
+Default: `null` <br>
+Required: `true`
+
+The directory (relative to `root`) to place your `rev-manifest.json`. **Required!** 
+
+### revReplace()
+
+Update all references to versioned files within a given directory.
+
+#### dirname
+
+Type: `string` <br>
+Default: `null` <br>
+Required: `true`
+
+The directory (relative to `root`) whose files are to be read & updated. **Required!** 
+
+#### ignores
+
+Type: `array` <br>
+Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
+
+A list of file extensions that should not be read & updated.
 
 ## License
 
