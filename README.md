@@ -19,7 +19,7 @@ Front-end cache-busting / versioning.
 
 ### Install
 ```a
-npm install -D fly-rev
+npm install fly-rev --save-dev
 ```
 
 ### Options
@@ -29,9 +29,9 @@ Type: `string`
 
 Default: `.` (project root)
 
-The base directory where your assets reside. This is also where your `rev-manifest.json` file will be placed.
+The directory where your `rev-manifest.json` file will be placed. This should also be where your assets are.
 
-#### path
+#### filename
 Type: `string`
 
 Default: `rev-manifest.json`
@@ -58,13 +58,9 @@ export default function* {
 }
 
 export function* rev() {
-  const src = ['scripts', 'styles', 'images'].map(dir => {
-    return `dist/${dir}/**/*`
-  })
-  return this.source(src).rev({
-    base: 'dist',
-    replace: true
-  })
+  return this.source('dist/{scripts,styles}/**/*')
+    .rev({base: 'dist'})
+    .target('dist');
 }
 ```
 
