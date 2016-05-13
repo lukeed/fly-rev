@@ -1,7 +1,7 @@
 {
   "name": "fly-rev",
   "version": "0.9.2",
-  "description": "Revision asset files by appending a unique hash to filenames. May also rewrite occurrences of filenames that were renamed.",
+  "description": "Append a unique hash to filename. Optionally create a manifest mapping. Optionally rewrite references to updated filenames.",
   "license": "MIT",
   "repository": "https://github.com/lukeed/fly-rev",
   "main": "index.js",
@@ -20,6 +20,8 @@
     "optimize",
     "version",
     "versioning",
+    "manifest",
+    "manifest.json",
     "cache",
     "expire",
     "static",

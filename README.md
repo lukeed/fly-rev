@@ -4,18 +4,16 @@
   </a>
 </div>
 
->Append a unique hash to filenames: `example.css` → `example-a6fhd136asf.css`
-
->May also rewrite occurrences of the filenames that were renamed.
+>Prepare front-end assets for cache-busting / versioning / hashing.
 
 [![][fly-badge]][fly]
 [![npm package][npm-ver-link]][releases]
 [![][dl-badge]][npm-pkg-link]
 [![][travis-badge]][travis-link]
 
-Version / hashify asset files for cache-busting.
-
-Optionally create a `rev
+1. Rename files by appending a unique hash, based on file contents.
+2. Optionally create a manifest that maps old filenames to newly versioned filenames.
+3. Optionally update all references to versioned files within a given directory.
 
 ## Install
 ```a
