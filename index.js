@@ -1,9 +1,9 @@
 var fs = require('fs');
+var extname = require('path').extname;
 var revHash = require('rev-hash');
 var revPath = require('rev-path');
 var sortKeys = require('sort-keys');
 var assign = require('object-assign');
-var extname = require('path').extname;
 
 module.exports = function () {
 	var manifest = {}; // reset on call
@@ -18,7 +18,7 @@ module.exports = function () {
 
 		return this.unwrap(function (files) {
 			// handle all this.source(...) files
-			files.map(function (name) {
+			files.forEach(function (name) {
 				var revved = hashify(name);
 
 				// rename the original file
