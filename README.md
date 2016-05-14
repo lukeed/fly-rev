@@ -35,7 +35,7 @@ export default function * () {
      })
     .revManifest({
       dirname: 'dist',
-      filename: 'manifest-json'
+      filename: 'manifest.json'
     })
     .revReplace({
       dirname: 'dist',
