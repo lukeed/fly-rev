@@ -89,10 +89,12 @@ module.exports = function () {
 			});
 		}
 
+		var dir = path.join(this.root, opts.dirname);
+
 		// set up a debounced listener, this registers BEFORE `fly.filter()` loops
 		return this.on('rev_manifest', debounce(function (contents) {
 			// get all files within `opts.dirname`
-			var files = getFiles(opts.dirname, FILENAME);
+			var files = getFiles(dir, FILENAME);
 
 			// manfest obj keys = original paths
 			var keys = Object.keys(contents).map(function (key) {
