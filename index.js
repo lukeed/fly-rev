@@ -38,22 +38,15 @@ module.exports = function () {
 	 */
 	this.plugin('revManifest', {every: 0}, function * (files, opts) {
 		opts = Object.assign({
-			dir: '',
-			base: '',
+			base: '', // path to trim
+			dest: this.root, // place file
 			sort: true,
 			file: 'rev-manifest.json'
 		}, opts);
 
 		// update known values
 		FILENAME = opts.file;
-		FILEPATH = p.resolve(opts.dir, opts.file);
-
-		if (!opts.dir) {
-			return this.emit('plugin_error', {
-				plugin: 'fly-rev',
-				error: 'A `dir` value must be provided in order to use `revManifest`!'
-			});
-		}
+		FILEPATH = p.resolve(opts.dest, opts.file);
 
 		// content to replace; default to `this.root`
 		opts.base = p.normalize(p.resolve(opts.base || ''));
