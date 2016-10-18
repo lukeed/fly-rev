@@ -4,9 +4,10 @@ const p = require('path');
 const revHash = require('rev-hash');
 const sortKeys = require('sort-keys');
 
-const FILENAME = 'rev-manifest.json';
-const MANIFEST = {}; // reset on call
 const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
+let MANIFEST = {}; // reset on call
+let FILENAME;
+let FILEPATH;
 
 module.exports = function () {
 	/**
@@ -32,43 +33,49 @@ module.exports = function () {
 		file.base = file.base.substr(0, idx).concat('-', file.hash, file.base.substr(idx));
 	});
 
-		// rename the original file
-		opts.file.name = next;
-		opts.file.base = next.concat(opts.file.ext);
-
-		// add pairing to manifest
-		next = path.format(opts.file);
-		MANIFEST[prev] = next;
-
-		// emit event for `revManifest` & `revReplace` listener
-		this.emit('rev_manifest', MANIFEST);
-
-		return data;
-	});
-
 	/**
 	 * Write the manifest file
 	 */
-	this.revManifest = function (opts) {
-		opts = assign({}, {dirname: null, filename: FILENAME}, opts);
+	this.plugin('revManifest', {every: 0}, function * (files, opts) {
+		opts = Object.assign({
+			dir: '',
+			base: '',
+			sort: true,
+			file: 'rev-manifest.json'
+		}, opts);
 
-		if (!opts.dirname) {
+		// update known values
+		FILENAME = opts.file;
+		FILEPATH = p.resolve(opts.dir, opts.file);
+
+		if (!opts.dir) {
 			return this.emit('plugin_error', {
 				plugin: 'fly-rev',
-				error: 'A `dirname` value must be provided in order to use `revManifest`!'
+				error: 'A `dir` value must be provided in order to use `revManifest`!'
 			});
 		}
 
-		FILENAME = opts.filename;
-		var filepath = path.join(this.root, opts.dirname, FILENAME);
+		// content to replace; default to `this.root`
+		opts.base = p.normalize(p.resolve(opts.base || ''));
+		const rgx = new RegExp(opts.base, 'i');
 
-		return this.on('rev_manifest', debounce(function (contents) {
-			// alphabetically sort
-			MANIFEST = sortKeys(contents);
-			// write to the manifest file
-			write(filepath, JSON.stringify(MANIFEST, false, '  '));
-		}, 100));
-	};
+		for (const f of files) {
+			// strip a string from the `file.dir` path
+			let dir = p.normalize(f.dir.replace(rgx, '/'));
+			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
+			console.log('dir', dir);
+			// add pairing to manifest
+			MANIFEST[p.join(dir, file.orig)] = p.join(dir, file.base);
+		}
+
+		// alphabetically sort
+		if (opts.sort) {
+			MANIFEST = sortKeys(MANIFEST);
+		}
+
+		// write the file
+		yield this.$.write(FILEPATH, JSON.stringify(MANIFEST, false, '	'));
+	});
 
 	/**
 	 * Read all files within a `dir` & Update to latest filenames
