@@ -1,42 +1,36 @@
-var fs = require('fs');
-var path = require('path');
-var revHash = require('rev-hash');
-var debounce = require('debounce');
-var sortKeys = require('sort-keys');
-var assign = require('object-assign');
-var write = require('safe-write-file');
+'use strict';
 
-var MANIFEST = {}; // reset on call
-var FILENAME = 'rev-manifest.json';
+const p = require('path');
+const revHash = require('rev-hash');
+const sortKeys = require('sort-keys');
 
-var ignores = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
+const FILENAME = 'rev-manifest.json';
+const MANIFEST = {}; // reset on call
+const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
 
 module.exports = function () {
 	/**
 	 * Create new hashed file names based on contents
 	 */
-	this.filter('rev', function (data, opts) {
+	this.plugin('rev', {}, function * (file, opts) {
 		// overwrite default opt values
-		opts = assign({}, {strip: '', ignores: ignores}, opts);
+		opts = Object.assign({}, {strip: '', ignores: IGNORE}, opts);
 
+		const ext = p.extname(file.base);
 		// if this file's extension matches `ignores`, exit early
-		if (opts.ignores.indexOf(opts.file.ext) > -1) {
-			return data;
+		if (!ext || opts.ignores.indexOf(ext) !== -1) {
+			return;
 		}
 
-		var hash = revHash(data);
-		var prev = opts.file.name;
-		var next = [prev, hash].join('-');
+		file.orig = file.base;
+		file.hash = revHash(file.data);
 
-		// strip a string from the `file.dir` path
-		if (opts.strip.length) {
-			var rgx = new RegExp(opts.strip, 'g');
-			var dir = path.normalize(opts.file.dir.replace(rgx, path.sep));
-			opts.file.dir = dir.charAt(0) === path.sep ? dir.substr(1) : dir;
-		}
+		// find first occurence of '.', NOT including first char
+		const idx = file.base.indexOf('.', 1);
 
-		// save original path
-		prev = path.format(opts.file);
+		// change filename; append hash to base name
+		file.base = file.base.substr(0, idx).concat('-', file.hash, file.base.substr(idx));
+	});
 
 		// rename the original file
 		opts.file.name = next;
