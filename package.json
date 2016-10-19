@@ -52,7 +52,8 @@
   "xo": {
   	"rules": {
   		"require-yield": 1,
-  		"no-loop-func": 1
+  		"no-loop-func": 1,
+  		"curly": 1
   	}
   }
 }

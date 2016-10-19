@@ -51,6 +51,8 @@ module.exports = function () {
 		const rgx = new RegExp(opts.base, 'i');
 
 		for (const f of files) {
+			// only if was revv'd
+			if (!f.orig) continue;
 			// strip a string from the `file.dir` path
 			let dir = p.normalize(f.dir.replace(rgx, '/'));
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
