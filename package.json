@@ -1,6 +1,6 @@
 {
   "name": "fly-rev",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Append a unique hash to filename. Optionally create a manifest mapping. Optionally rewrite references to updated filenames.",
   "license": "MIT",
   "repository": "https://github.com/lukeed/fly-rev",
@@ -50,10 +50,10 @@
     "node": ">= 4.6.0"
   },
   "xo": {
-  	"rules": {
-  		"require-yield": 1,
-  		"no-loop-func": 1,
-  		"curly": 1
-  	}
+    "rules": {
+      "require-yield": 1,
+      "no-loop-func": 1,
+      "curly": 1
+    }
   }
 }
