@@ -68,7 +68,7 @@ const fly = new Fly({
 				.target(tmp);
 			t.true('revReplace' in fly, 'attach `revReplace()` plugin to fly');
 			const svg = yield this.$.read(`${tmp}/b.svg`, 'utf8');
-			const rgx = new RegExp('test/fixtures/a-2842ed45c6.js', 'i');
+			const rgx = new RegExp(`test/fixtures/a-${hash}.js`, 'i');
 			t.true(rgx.test(svg), 'replace the original file path');
 			yield this.clear(tmp);
 		}
