@@ -39,26 +39,31 @@ module.exports = function () {
 		MANIFEST = {}; // reset
 
 		opts = Object.assign({
-			base: '', // path to trim
-			dest: this.root, // place file
 			sort: true,
+			dest: this.root, // place file
+			trim: '', // path to trim
 			file: 'rev-manifest.json'
 		}, opts);
 
 		// update known values
 		FILEPATH = p.resolve(opts.dest, opts.file);
 
-		// content to replace; default to `this.root`
-		opts.base = p.normalize(p.resolve(opts.base || ''));
-		const rgx = new RegExp(opts.base, 'i');
+		// content to replace
+		if (!opts.trim || typeof opts.trim === 'string') {
+			const t = opts.trim;
+			// create `replace` function
+			opts.trim = str => str.replace(new RegExp(t, 'i'), '/');
+		}
 
 		for (const f of files) {
 			// only if was revv'd
 			if (!f.orig) continue;
 			// strip a string from the `file.dir` path
-			let dir = p.normalize(f.dir.replace(rgx, '/'));
+			let dir = p.relative(this.root, f.dir);
+			// apply `opts.trim` func
+			dir = p.normalize(opts.trim(dir));
+			// ensure no leading '/'
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
-			console.log('dir', dir);
 			// add pairing to manifest
 			MANIFEST[p.join(dir, f.orig)] = p.join(dir, f.base);
 		}
