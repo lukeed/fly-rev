@@ -14,7 +14,7 @@ module.exports = function () {
 	 */
 	this.plugin('rev', {}, function * (file, opts) {
 		// overwrite default opt values
-		opts = Object.assign({}, {strip: '', ignores: IGNORE}, opts);
+		opts = Object.assign({}, {ignores: IGNORE}, opts);
 
 		const ext = p.extname(file.base);
 		// if this file's extension matches `ignores`, exit early
