@@ -5,7 +5,7 @@ const revHash = require('rev-hash');
 const sortKeys = require('sort-keys');
 
 const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
-let MANIFEST = {}; // reset on call
+let MANIFEST;
 let FILEPATH;
 
 module.exports = function () {
@@ -36,6 +36,8 @@ module.exports = function () {
 	 * Write the manifest file
 	 */
 	this.plugin('revManifest', {every: 0}, function * (files, opts) {
+		MANIFEST = {}; // reset
+
 		opts = Object.assign({
 			base: '', // path to trim
 			dest: this.root, // place file
