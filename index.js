@@ -6,7 +6,6 @@ const sortKeys = require('sort-keys');
 
 const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
 let MANIFEST = {}; // reset on call
-let FILENAME;
 let FILEPATH;
 
 module.exports = function () {
@@ -45,7 +44,6 @@ module.exports = function () {
 		}, opts);
 
 		// update known values
-		FILENAME = opts.file;
 		FILEPATH = p.resolve(opts.dest, opts.file);
 
 		// content to replace; default to `this.root`
@@ -58,7 +56,7 @@ module.exports = function () {
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
 			console.log('dir', dir);
 			// add pairing to manifest
-			MANIFEST[p.join(dir, file.orig)] = p.join(dir, file.base);
+			MANIFEST[p.join(dir, f.orig)] = p.join(dir, f.base);
 		}
 
 		// alphabetically sort
@@ -73,8 +71,8 @@ module.exports = function () {
 	/**
 	 * Read all files within a `dir` & Update to latest filenames
 	 */
-	this.plugin('revReplace', {every: 0}, function * (files, opts) {
-		opts = assign({dir: '', ignores: IGNORE}, opts);
+	this.plugin('revReplace', {every: 0}, function * (_, opts) {
+		opts = Object.assign({dir: '', ignores: IGNORE}, opts);
 
 		if (!opts.dir) {
 			return this.emit('plugin_error', {
@@ -92,14 +90,14 @@ module.exports = function () {
 		const keys = Object.keys(MANIFEST).map(k => k.replace(/([[^$.|?*+(){}\\])/g, '\\$1')).join('|');
 		const rgx = new RegExp(keys, 'gi');
 
-		yield Promise.all(files.map(f => {
+		for (const f of files) {
 			const ext = p.extname(f);
 			// if this file's extension is not in `ignores`, continue
 			if (ext && opts.ignores.indexOf(ext) === -1) {
 				const data = yield this.$.read(f);
-				// replace original with revved && save change
-				return this.$.write(f, data.toString().replace(rgx, k => MANIFEST[k]));
+				// replace orig with rev'd && write it
+				yield this.$.write(f, data.toString().replace(rgx, k => MANIFEST[k]));
 			}
-		}));
+		}
 	});
 };

@@ -48,5 +48,11 @@
   },
   "engines": {
     "node": ">= 4.6.0"
+  },
+  "xo": {
+  	"rules": {
+  		"require-yield": 1,
+  		"no-loop-func": 1
+  	}
   }
 }
