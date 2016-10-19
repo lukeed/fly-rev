@@ -73,71 +73,33 @@ module.exports = function () {
 	/**
 	 * Read all files within a `dir` & Update to latest filenames
 	 */
-	this.revReplace = function (opts) {
-		opts = assign({}, {dirname: null, ignores: ignores}, opts);
+	this.plugin('revReplace', {every: 0}, function * (files, opts) {
+		opts = assign({dir: '', ignores: IGNORE}, opts);
 
-		if (!opts.dirname) {
+		if (!opts.dir) {
 			return this.emit('plugin_error', {
 				plugin: 'fly-rev',
-				error: 'A `dirname` value must be provided in order to use `revReplace`!'
+				error: 'A `dir` must be specified in order to use `revReplace`!'
 			});
 		}
 
-		var dir = path.join(this.root, opts.dirname);
+		opts.dir = p.resolve(opts.dir);
 
-		// set up a debounced listener, this registers BEFORE `fly.filter()` loops
-		return this.on('rev_manifest', debounce(function (contents) {
-			// get all files within `opts.dirname`
-			var files = getFiles(dir, FILENAME);
+		// get all files within `opts.dir`
+		const files = yield this.$.expand(opts.dir, {ignore: FILEPATH});
 
-			// manfest obj keys = original paths
-			var keys = Object.keys(contents).map(function (key) {
-				// Escape safe characters
-				return key.replace(/([[^$.|?*+(){}\\])/g, '\\$1');
-			}).join('|');
+		// get original manifest paths; escape safe characters
+		const keys = Object.keys(MANIFEST).map(k => k.replace(/([[^$.|?*+(){}\\])/g, '\\$1')).join('|');
+		const rgx = new RegExp(keys, 'gi');
 
-			var rgx = new RegExp(keys, 'g');
-
-			files.forEach(function (file) {
-				if (opts.ignores.indexOf(path.extname(file)) === -1) {
-					// not an ignored extension, replace the original path with the hashed version
-					var data = fs.readFileSync(file).toString().replace(rgx, function (key) {
-						return contents[key];
-					});
-
-					// write the change
-					write(file, data);
-				}
-			});
-		}, 100));
-	};
-};
-
-/**
- * Read all files from a Directory, excluding the `rev-manifest.json` itself
- * @param  {String} baseDir
- * @param  {String} maniPath
- * @return {Array}
- */
-function getFiles(baseDir, maniPath) {
-	var output = [];
-
-	function parser(dir) {
-		var items = fs.readdirSync(dir);
-
-		items.forEach(function (item) {
-			var fp = path.join(dir, item);
-			var stats = fs.statSync(fp);
-
-			if (stats.isDirectory()) {
-				return parser(fp);
-			} else if (stats.isFile() && item !== maniPath) {
-				output.push(fp);
+		yield Promise.all(files.map(f => {
+			const ext = p.extname(f);
+			// if this file's extension is not in `ignores`, continue
+			if (ext && opts.ignores.indexOf(ext) === -1) {
+				const data = yield this.$.read(f);
+				// replace original with revved && save change
+				return this.$.write(f, data.toString().replace(rgx, k => MANIFEST[k]));
 			}
-		});
-	}
-
-	parser(baseDir);
-
-	return output;
-}
+		}));
+	});
+};
