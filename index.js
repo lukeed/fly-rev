@@ -80,33 +80,20 @@ module.exports = function () {
 	/**
 	 * Read all files within a `dir` & Update to latest filenames
 	 */
-	this.plugin('revReplace', {every: 0}, function * (_, opts) {
-		opts = Object.assign({dir: '', ignores: IGNORE}, opts);
-
-		if (!opts.dir) {
-			return this.emit('plugin_error', {
-				plugin: 'fly-rev',
-				error: 'A `dir` must be specified in order to use `revReplace`!'
-			});
-		}
-
-		opts.dir = p.resolve(opts.dir);
-
-		// get all files within `opts.dir`
-		const files = yield this.$.expand(opts.dir, {ignore: FILEPATH});
+	this.plugin('revReplace', {every: 0}, function * (files, opts) {
+		opts = Object.assign({ignores: IGNORE}, opts);
 
 		// get original manifest paths; escape safe characters
 		const keys = Object.keys(MANIFEST).map(k => k.replace(/([[^$.|?*+(){}\\])/g, '\\$1')).join('|');
 		const rgx = new RegExp(keys, 'gi');
 
-		for (const f of files) {
-			const ext = p.extname(f);
-			// if this file's extension is not in `ignores`, continue
-			if (ext && opts.ignores.indexOf(ext) === -1) {
-				const data = yield this.$.read(f);
-				// replace orig with rev'd && write it
-				yield this.$.write(f, data.toString().replace(rgx, k => MANIFEST[k]));
-			}
+		for (let f of files) {
+			const ext = p.extname(f.base);
+			// only if not in `ignores`
+			if (!ext || opts.ignores.indexOf(ext) !== -1) continue;
+			// replace orig with rev'd && write it
+			const d = f.data.toString().replace(rgx, k => MANIFEST[k]);
+			f.data = new Buffer(d);
 		}
 	});
 };
