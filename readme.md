@@ -1,44 +1,44 @@
-<div align="center">
+# fly-rev [![][travis-badge]][travis-link] [![npm package][npm-ver-link]][npm-pkg-link]
+
+> Prepare front-end assets for cache-busting / versioning / hashing.
+
+<!-- <div align="center">
   <a href="http://github.com/flyjs/fly">
     <img width=200px  src="https://cloud.githubusercontent.com/assets/8317250/8733685/0be81080-2c40-11e5-98d2-c634f076ccd7.png">
   </a>
-</div>
+</div> -->
 
->Prepare front-end assets for cache-busting / versioning / hashing.
+This plugin includes three functions:
 
-[![][fly-badge]][fly]
-[![npm package][npm-ver-link]][releases]
-[![][dl-badge]][npm-pkg-link]
-[![][travis-badge]][travis-link]
+1. [`rev()`](#revoptions): Rename files by appending a unique hash, based on contents.
+2. [`revManifest()`](#revmanifestoptions): Create a manifest that maps old filenames to newly versioned filenames. _(optional)_
+3. [`revReplace()`](#revreplaceoptions): Update all references to versioned files. _(optional)_
 
-1. Rename files by appending a unique hash, based on file contents.
-2. Optionally create a manifest that maps old filenames to newly versioned filenames.
-3. Optionally update all references to versioned files within a given directory.
+Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
 
 ## Install
-```a
-npm install fly-rev --save-dev
+```
+npm install --save-dev fly-rev
 ```
 
 ## Usage
 
 The `rev()` task is the core method; thus is **required** for anything to occur.
 
-Both `revManifest()` and `revReplace()` are optional, purely elective, plugins.
+Both `revManifest()` and `revReplace()` are optional plugins.
 
-```javascript
-export default function * () {
+```js
+exports.default = function * () {
   yield this.source('app/**/*')
     .rev({
-      strip: 'app',
       ignores: ['.html', '.jpg', '.png']
      })
     .revManifest({
-      dirname: 'dist',
-      filename: 'manifest.json'
+      dest: 'dist',
+      file: 'manifest.json',
+      trim: str => str.replace(/app\/client/i, 'assets')
     })
     .revReplace({
-      dirname: 'dist',
       ignores: ['.php']
     })
     .target('dist');
@@ -47,82 +47,89 @@ export default function * () {
 
 ## API
 
-### rev()
+### .rev(options)
 
-Rename files by appending a unique hash, based on file contents.
+Generate a unique hash (based on a file's contents) and append it to the filename.
 
-#### strip
-
-Type: `string` <br>
-Default: `''`
-
-A string to remove from the asset paths; usually the source directory name.
-
-Example: 
-
-```javascript
-yield this.source('app/**/*').rev()
-//=> produces "app/scripts/"
-yield this.source('app/**/*').rev({strip: 'app'})
-//=> produces "scripts/"
+```js
+bundle.js
+//=> bundle-{hash}.js
+bundle.min.js
+//=> bundle-{hash}.min.js
 ```
 
-#### ignores
+Any files that *are* processed will receive two new keys: `orig` and `hash`. In addition, the `base` key will be updated with the new, versioned filename.
+
+#### options.ignores
 
 Type: `array` <br>
 Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
 
-A list of file extensions to NOT rename.
+A list of file extensions that should NOT be renamed/processed.
 
-### revManifest()
 
-Create a manifest that maps old filenames to newly versioned filenames.
+### revManifest(options)
 
-#### filename
+Create a manifest file that relates old filenames to versioned counterparts.
+
+#### options.file
 
 Type: `string` <br>
 Default: `'rev-manifest.json'`
 
-The filename of the manifest to be created.
+The name of the manifest file to be created.
 
-#### dirname
-
-Type: `string` <br>
-Default: `null` <br>
-Required: `true`
-
-The directory (relative to `root`) to place your `rev-manifest.json`. **Required!** 
-
-### revReplace()
-
-Update all references to versioned files within a given directory.
-
-#### dirname
+#### options.dest
 
 Type: `string` <br>
-Default: `null` <br>
-Required: `true`
+Default: `fly.root`
 
-The directory (relative to `root`) whose files are to be read & updated. **Required!** 
+The directory where your manifest file should be created. Defaults to Fly's root directory (where `flyfile.js` is found).
 
-#### ignores
+#### options.sort
+
+Type: `boolean`<br>
+Default: `true`
+
+Whether or not the manifest's contents should be sorted alphabetically. (Does not add any performance / usage benefits.)
+
+#### options.trim
+
+Type: `string` or `function`<br>
+Default: `.`
+
+Edit the final keys & values within the manifest. If `string`, the value will be resolved relative to Fly's root directory. Using a `function` provides more fine-tuned control.
+
+```js
+yield this.source('app/client/*.js').rev()
+  .revManifest({trim: 'app'}).target('dist');
+  //=> "client/demo.js": "client/demo-1abd624s.js"
+
+yield this.source('app/client/*.js').rev()
+  .revManifest({
+    trim: str => str.replace(/app\/client/i, 'assets')
+  }).target('dist');
+  //=> "assets/demo.js": "assets/demo-1abd624s.js"
+```
+
+### revReplace(options)
+
+Update references to all versioned files within a given source.
+
+Matching files from within `fly.source()` are available for inspection & modifications. Because of this, **it is recommended** that all your `rev-*` usage is extracted to a separate, production-only task whose `source` includes all development files.
+
+#### options.ignores
 
 Type: `array` <br>
 Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
 
-A list of file extensions that should not be read & updated.
+A list of file extensions whose content should not be updated.
 
 ## License
 
 MIT © [Luke Edwards](https://lukeed.com)
 
-
-[releases]:     https://github.com/lukeed/fly-rev/releases
-[fly]:          https://www.github.com/flyjs/fly
-[fly-badge]:    https://img.shields.io/badge/fly-JS-05B3E1.svg?style=flat-square
-[mit-badge]:    https://img.shields.io/badge/license-MIT-444444.svg?style=flat-square
 [npm-pkg-link]: https://www.npmjs.org/package/fly-rev
 [npm-ver-link]: https://img.shields.io/npm/v/fly-rev.svg?style=flat-square
-[dl-badge]:     http://img.shields.io/npm/dm/fly-rev.svg?style=flat-square
 [travis-link]:  https://travis-ci.org/lukeed/fly-rev
 [travis-badge]: http://img.shields.io/travis/lukeed/fly-rev.svg?style=flat-square
