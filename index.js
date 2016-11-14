@@ -16,6 +16,11 @@ module.exports = function () {
 		// overwrite default opt values
 		opts = Object.assign({}, {ignores: IGNORE}, opts);
 
+		// bypass dirs or empty files
+		if (!file.data) {
+			return;
+		}
+
 		const ext = p.extname(file.base);
 		// if this file's extension matches `ignores`, exit early
 		if (!ext || opts.ignores.indexOf(ext) !== -1) {
