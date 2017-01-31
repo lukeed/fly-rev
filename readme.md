@@ -28,8 +28,8 @@ The `rev()` task is the core method; thus is **required** for anything to occur.
 Both `revManifest()` and `revReplace()` are optional plugins.
 
 ```js
-exports.default = function * () {
-  yield this.source('app/**/*')
+exports.default = function * (fly) {
+  yield fly.source('app/**/*')
     .rev({
       ignores: ['.html', '.jpg', '.png']
      })
@@ -101,11 +101,11 @@ Default: `.`
 Edit the final keys & values within the manifest. If `string`, the value will be resolved relative to Fly's root directory. Using a `function` provides more fine-tuned control.
 
 ```js
-yield this.source('app/client/*.js').rev()
+yield fly.source('app/client/*.js').rev()
   .revManifest({trim: 'app'}).target('dist');
   //=> "client/demo.js": "client/demo-1abd624s.js"
 
-yield this.source('app/client/*.js').rev()
+yield fly.source('app/client/*.js').rev()
   .revManifest({
     trim: str => str.replace(/app\/client/i, 'assets')
   }).target('dist');
