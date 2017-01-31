@@ -8,11 +8,11 @@ const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']
 let MANIFEST;
 let FILEPATH;
 
-module.exports = function () {
+module.exports = function (fly) {
 	/**
 	 * Create new hashed file names based on contents
 	 */
-	this.plugin('rev', {}, function * (file, opts) {
+	fly.plugin('rev', {}, function * (file, opts) {
 		// overwrite default opt values
 		opts = Object.assign({}, {ignores: IGNORE}, opts);
 
@@ -40,7 +40,7 @@ module.exports = function () {
 	/**
 	 * Write the manifest file
 	 */
-	this.plugin('revManifest', {every: 0}, function * (files, opts) {
+	fly.plugin('revManifest', {every: 0}, function * (files, opts) {
 		MANIFEST = {}; // reset
 
 		opts = Object.assign({
@@ -85,7 +85,7 @@ module.exports = function () {
 	/**
 	 * Read all files within a `dir` & Update to latest filenames
 	 */
-	this.plugin('revReplace', {every: 0}, function * (files, opts) {
+	fly.plugin('revReplace', {every: 0}, function * (files, opts) {
 		opts = Object.assign({ignores: IGNORE}, opts);
 
 		// get original manifest paths; escape safe characters
