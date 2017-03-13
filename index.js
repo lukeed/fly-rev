@@ -57,21 +57,30 @@ module.exports = function (fly) {
 		if (!opts.trim || typeof opts.trim === 'string') {
 			const t = opts.trim;
 			// create `replace` function
-			opts.trim = str => str.replace(new RegExp(t, 'i'), '/');
+			// opts.trim = str => p.rel
+			opts.trim = str => {
+				console.log('TRIM RECEIVED', str);
+				return str.replace(new RegExp(t, 'i'), '/');
+			};
 		}
 
 		let dir, old;
 		for (const f of files) {
 			// only if was revv'd
 			if (!f.orig) continue;
+			console.log('==========', f.dir, f.base, f.orig, '==========');
 			// strip a string from the `file.dir` path
 			dir = p.relative(this.root, f.dir).replace(RGX, '/');
+			console.log('DIR-1:', dir);
 			// apply `opts.trim` func
 			dir = p.normalize(opts.trim(dir)).replace(RGX, '/');
+			console.log('DIR-2:', dir);
 			// ensure no leading '/'
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
+			console.log('DIR-3:', dir);
 			// reconstruct old path
 			old = p.join(dir, f.orig).replace(RGX, '/');
+			console.log('OLD:', old);
 			// construct new; add pairing to manifest
 			MANIFEST[old] = p.join(dir, f.base).replace(RGX, '/');
 		}
