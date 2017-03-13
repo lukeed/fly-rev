@@ -65,9 +65,9 @@ module.exports = function (fly) {
 			// only if was revv'd
 			if (!f.orig) continue;
 			// strip a string from the `file.dir` path
-			dir = p.relative(this.root, f.dir);
+			dir = p.relative(this.root, f.dir).replace(RGX, '/');
 			// apply `opts.trim` func
-			dir = p.normalize(opts.trim(dir));
+			dir = p.normalize(opts.trim(dir)).replace(RGX, '/');
 			// ensure no leading '/'
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
 			// reconstruct old path
