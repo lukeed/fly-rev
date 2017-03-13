@@ -92,7 +92,7 @@ module.exports = function (fly) {
 		const keys = Object.keys(MANIFEST).map(k => k.replace(/([[^$.|?*+(){}\\])/g, '\\$1')).join('|');
 		const rgx = new RegExp(keys, 'gi');
 
-		for (let f of files) {
+		for (const f of files) {
 			const ext = p.extname(f.base);
 			// only if not in `ignores`
 			if (!ext || opts.ignores.indexOf(ext) !== -1) continue;

@@ -51,6 +51,7 @@
     "node": ">= 6"
   },
   "xo": {
+  	"esnext": true,
     "rules": {
       "require-yield": 1,
       "no-loop-func": 1,
