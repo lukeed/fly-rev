@@ -41,8 +41,8 @@
     "sort-keys": "^1.1.1"
   },
   "devDependencies": {
-    "fly": "^2.0.0",
-    "fly-clear": "^0.2.0",
+    "fly": "^2.0.5",
+    "fly-clear": "^1.0.1",
     "tap-spec": "^4.1.1",
     "tape": "^4.2.2",
     "xo": "*"
