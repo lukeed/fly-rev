@@ -4,9 +4,9 @@ const p = require('path');
 const revHash = require('rev-hash');
 const sortKeys = require('sort-keys');
 
+const RGX = /\\/g;
+let MANIFEST, FILEPATH;
 const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
-let MANIFEST;
-let FILEPATH;
 
 module.exports = function (fly) {
 	/**
@@ -51,7 +51,7 @@ module.exports = function (fly) {
 		}, opts);
 
 		// update known values
-		FILEPATH = p.resolve(opts.dest, opts.file);
+		FILEPATH = p.resolve(opts.dest, opts.file).replace(RGX, '/');
 
 		// content to replace
 		if (!opts.trim || typeof opts.trim === 'string') {
@@ -60,17 +60,20 @@ module.exports = function (fly) {
 			opts.trim = str => str.replace(new RegExp(t, 'i'), '/');
 		}
 
+		let dir, old;
 		for (const f of files) {
 			// only if was revv'd
 			if (!f.orig) continue;
 			// strip a string from the `file.dir` path
-			let dir = p.relative(this.root, f.dir);
+			dir = p.relative(this.root, f.dir);
 			// apply `opts.trim` func
 			dir = p.normalize(opts.trim(dir));
 			// ensure no leading '/'
 			dir = dir.charAt(0) === '/' ? dir.substr(1) : dir;
-			// add pairing to manifest
-			MANIFEST[p.join(dir, f.orig)] = p.join(dir, f.base);
+			// reconstruct old path
+			old = p.join(dir, f.orig).replace(RGX, '/');
+			// construct new; add pairing to manifest
+			MANIFEST[old] = p.join(dir, f.base).replace(RGX, '/');
 		}
 
 		// alphabetically sort
