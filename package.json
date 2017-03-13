@@ -48,10 +48,10 @@
     "xo": "*"
   },
   "engines": {
-    "node": ">= 6"
+    "node": ">= 4.6"
   },
   "xo": {
-  	"esnext": true,
+    "esnext": true,
     "rules": {
       "require-yield": 1,
       "no-loop-func": 1,
