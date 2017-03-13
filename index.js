@@ -14,7 +14,7 @@ module.exports = function (fly) {
 	 */
 	fly.plugin('rev', {}, function * (file, opts) {
 		// overwrite default opt values
-		opts = Object.assign({}, {ignores: IGNORE}, opts);
+		opts = Object.assign({ignores: IGNORE}, opts);
 
 		// bypass dirs or empty files
 		if (!file.data) {
