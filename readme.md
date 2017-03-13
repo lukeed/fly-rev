@@ -1,4 +1,4 @@
-# fly-rev [![][travis-badge]][travis-link] [![npm package][npm-ver-link]][npm-pkg-link]
+# fly-rev [![][travis-badge]][travis-link] [![Build status](https://ci.appveyor.com/api/projects/status/q6l1ah2aa83tf736/branch/master?svg=true)](https://ci.appveyor.com/project/lukeed/fly-rev/branch/master) [![npm package][npm-ver-link]][npm-pkg-link]
 
 > Prepare front-end assets for cache-busting / versioning / hashing.
 
