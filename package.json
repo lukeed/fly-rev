@@ -55,6 +55,7 @@
     "rules": {
       "require-yield": 1,
       "no-loop-func": 1,
+      "one-var": 0,
       "curly": 1
     }
   }
