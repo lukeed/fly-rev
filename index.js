@@ -4,7 +4,7 @@ const p = require('path');
 const revHash = require('rev-hash');
 const sortKeys = require('sort-keys');
 
-const RGX = /\\/g;
+const RGX = /\\+/g;
 let MANIFEST, FILEPATH;
 const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
 
