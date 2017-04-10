@@ -6,7 +6,7 @@ const sortKeys = require('sort-keys');
 
 const SEP = '/';
 let MANIFEST, FILEPATH;
-const IGNORE = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.ico'];
+const IGNORE = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.ico', '.json'];
 
 function fixPath(str) {
 	return str.replace(/\\+/g, SEP);
@@ -105,7 +105,7 @@ module.exports = function (fly) {
 			if (!ext || opts.ignores.indexOf(ext) !== -1) continue;
 			// replace orig with rev'd && write it
 			const d = f.data.toString().replace(rgx, k => MANIFEST[k]);
-			f.data = new Buffer(d);
+			f.data = Buffer.from(d);
 		}
 	});
 };
