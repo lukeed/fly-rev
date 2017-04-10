@@ -6,7 +6,7 @@ const sortKeys = require('sort-keys');
 
 const SEP = '/';
 let MANIFEST, FILEPATH;
-const IGNORE = ['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot'];
+const IGNORE = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.ico'];
 
 function fixPath(str) {
 	return str.replace(/\\+/g, SEP);
