@@ -49,7 +49,7 @@ module.exports = function (fly) {
 
 		opts = Object.assign({
 			sort: true,
-			dest: this.root, // place file
+			dest: fly.root, // place file
 			trim: '', // path to trim
 			file: 'rev-manifest.json'
 		}, opts);
@@ -69,7 +69,7 @@ module.exports = function (fly) {
 			// only if was revv'd
 			if (!f.orig) continue;
 			// strip a string from the `file.dir` path
-			dir = fixPath(p.relative(this.root, f.dir));
+			dir = fixPath(p.relative(fly.root, f.dir));
 			// apply `opts.trim` func
 			dir = fixPath(p.normalize(opts.trim(dir)));
 			// ensure no leading '/'
