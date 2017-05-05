@@ -12,7 +12,7 @@ function fixPath(str) {
 	return str.replace(/\\+/g, SEP);
 }
 
-module.exports = function (fly) {
+module.exports = function (fly, utils) {
 	/**
 	 * Create new hashed file names based on contents
 	 */
@@ -86,7 +86,7 @@ module.exports = function (fly) {
 		}
 
 		// write the file
-		yield this.$.write(FILEPATH, JSON.stringify(MANIFEST, false, '	'));
+		yield utils.write(FILEPATH, JSON.stringify(MANIFEST, false, '	'));
 	});
 
 	/**
