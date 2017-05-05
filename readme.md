@@ -63,9 +63,11 @@ Any files that *are* processed will receive two new keys: `orig` and `hash`. In 
 #### options.ignores
 
 Type: `array` <br>
-Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
+Default: `['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.html', '.json']`
 
 A list of file extensions that should NOT be renamed/processed.
+
+> **Note:** This includes `.html` and `.json` while [`revReplace`](https://github.com/lukeed/fly-rev#optionsignores-1) does not.
 
 
 ### revManifest(options)
@@ -121,9 +123,12 @@ Matching files from within `fly.source()` are available for inspection & modific
 #### options.ignores
 
 Type: `array` <br>
-Default: `['.png', 'jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
+Default: `['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot']`
 
 A list of file extensions whose content should not be updated.
+
+> **Note:** Unlike [`.rev()`](https://github.com/lukeed/fly-rev#optionsignores), this list does not include `.html` and `.json`.
+
 
 ## License
 
