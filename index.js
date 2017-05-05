@@ -6,7 +6,7 @@ const sortKeys = require('sort-keys');
 
 const SEP = '/';
 let MANIFEST, FILEPATH;
-const IGNORE = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.ico', '.json'];
+const IGNORE = ['.png', '.jpg', '.jpeg', '.svg', '.gif', '.woff', '.ttf', '.eot', '.ico'];
 
 function fixPath(str) {
 	return str.replace(/\\+/g, SEP);
@@ -18,7 +18,7 @@ module.exports = function (fly, utils) {
 	 */
 	fly.plugin('rev', {}, function * (file, opts) {
 		// overwrite default opt values
-		opts = Object.assign({ignores: IGNORE}, opts);
+		opts = Object.assign({ignores: IGNORE.concat('.html', '.json')}, opts);
 
 		// bypass dirs or empty files
 		if (!file.data) {
